@@ -1,0 +1,29 @@
+﻿#Id, Name,ISO,Enabled
+1,Cuba,CU,true
+2,Haiti,HT,true
+3,Dominican Republic,DO,true
+4,Puerto Rico,PR,true
+5,Jamaica,JM,true
+6,Trinidad and Tobago,TT,true
+7,Guadeloupe,GP,true
+8,Martinique,MQ,true
+9,Bahamas,BS,true
+10,Barbados,BB,true
+11,Saint Lucia,LC,true
+12,Curaçao,CW,true
+13,Aruba,AW,true
+14,Saint Vincent and the Grenadines,VC,true
+15,United States Virgin Islands,VI,true
+16,Grenada,GD,true
+17,Antigua and Barbuda,AG,true
+18,Dominica,DM,true
+19,Cayman Islands,KY,true
+20,Saint Kitts and Nevis,KN,true
+21,Sint Maarten,SX,true
+22,Turks and Caicos Islands,TC,true 
+23,Saint Martin,MF,true
+24,British Virgin Islands,VG,true
+25,Caribbean Netherlands,BQ,true
+26,Anguilla,AI,true
+27,Saint Barthélemy,BL,true
+28,Montserrat,MS,true
