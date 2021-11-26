@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "COJ.Web.Seeder": {
+      "commandName": "Project",
+      "commandLineArgs": " \"Host=localhost;Username=postgres;Password=root;Database=COJ\""
+    }
+  }
+}
