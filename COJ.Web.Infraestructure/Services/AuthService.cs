@@ -2,17 +2,11 @@
 using COJ.Web.Domain.Entities;
 using COJ.Web.Domain.Models;
 using COJ.Web.Domain.Values;
-using COJ.Web.Infraestructure.Exceptions;
+using COJ.Web.Domain.Exceptions;
 using COJ.Web.Infraestructure.MediatR.Commands;
 using COJ.Web.Infraestructure.MediatR.Queries;
 
 using MediatR;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace COJ.Web.Infraestructure.Services;
 
@@ -22,21 +16,40 @@ public sealed class AuthService : IAuthService
     private readonly IHashService hashService;
     private readonly IEmailService emailService;
 
-    public AuthService(IMediator mediator, IHashService hashService, IEmailService emailService)
+    public AuthService(IMediator mediator, IHashService hashService, IEmailService emailService, IJwtService jwtService)
     {
         _mediator = mediator;
         this.hashService = hashService;
         this.emailService = emailService;
+        JwtService = jwtService;
     }
+
+    public IJwtService JwtService { get; }
 
     public Account RecoverAccount(string emailOrUsername)
     {
         throw new NotImplementedException();
     }
 
-    public Account SignIn(Account account)
+    public async Task<SignInResult> SignIn(SignInModel request, SignInArguments arguments)
     {
-        throw new NotImplementedException();
+        var account = await _mediator.Send(new SignInAccountCommand()
+        {
+            UsernameOrEmail = request.UsernameOrEmail,
+            Password = request.Password,
+            IpAddress = arguments.IpAddress,
+        });
+
+        if (account == null)
+            throw new NotAuthorizedException();
+
+        var token = JwtService.ComputeToken(account, out var expirationTime);
+
+        return new SignInResult()
+        {
+            Token = token,
+            ExpirationTime = expirationTime
+        };
     }
 
     /// <summary>

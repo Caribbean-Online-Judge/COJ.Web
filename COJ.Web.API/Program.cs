@@ -1,47 +1,44 @@
-using COJ.Web.API;
-using COJ.Web.Domain.Abstract;
-using COJ.Web.Infraestructure;
-using COJ.Web.Infraestructure.Services;
+using COJ.Web.Infraestructure.Environment;
 using COJ.Web.Infrestructure.Data;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 AppEnvironment.LoadEnvFile();
-
 builder.Configuration.AddEnvironmentVariables();
 
-
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+{
+    opt.TokenValidationParameters = new()
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        //ValidateIssuerSigningKey = false,
+        //ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        //ValidAudience = builder.Configuration["Jwt:Issuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT_SECRET"]))
+    };
+});
+
 AddSwagger();
-
-builder.Services.AddMediatR(Assembly.GetExecutingAssembly(),
-    Assembly.Load("COJ.Web.Infraestructure"));
-
-builder.Services.AddSingleton<AppEnvironment>();
-
-var host = builder.Configuration.GetValue<string>(AppEnvironment.DATABASE_HOST_KEY);
-var username = builder.Configuration.GetValue<string>("DATABASE_USERNAME");
-var password = builder.Configuration.GetValue<string>("DATABASE_PASSWORD");
-var name = builder.Configuration.GetValue<string>("DATABASE_NAME");
-var connection = $"Host={host};Username={username};Password={password};Database={name}";
-
-builder.Services.AddDbContext<MainDbContext>(options =>
-               options.UseNpgsql(connection, b => b.MigrationsAssembly("COJ.Web.API")));
+RegisterDatabase();
+RegisterServices();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-RegisterServices();
 
 var app = builder.Build();
 
@@ -54,11 +51,24 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
+
+void RegisterDatabase()
+{
+    var host = builder.Configuration.GetValue<string>(AppEnvironment.DATABASE_HOST_KEY);
+    var username = builder.Configuration.GetValue<string>("DATABASE_USERNAME");
+    var password = builder.Configuration.GetValue<string>("DATABASE_PASSWORD");
+    var name = builder.Configuration.GetValue<string>("DATABASE_NAME");
+    var connection = $"Host={host};Username={username};Password={password};Database={name}";
+
+    builder.Services.AddDbContext<MainDbContext>(options =>
+                   options.UseNpgsql(connection, b => b.MigrationsAssembly("COJ.Web.API")));
+}
 
 void AddSwagger()
 {
@@ -78,7 +88,22 @@ void AddSwagger()
 
 void RegisterServices()
 {
-    builder.Services.AddTransient<IHashService, HashService>();
-    builder.Services.AddTransient<IAuthService, AuthService>();
-    builder.Services.AddTransient<IEmailService, EmailService>();
+    var domainAssembly = Assembly.Load("COJ.Web.Domain");
+    var infraestructureAssembly = Assembly.Load("COJ.Web.Infraestructure");
+
+
+    builder.Services.AddMediatR(Assembly.GetExecutingAssembly(), infraestructureAssembly);
+
+    builder.Services.AddSingleton<AppEnvironment>();
+
+    foreach (Type ti in domainAssembly.GetTypes().Where(x => x.IsInterface && x.IsPublic && x.Name.Contains("Service")))
+    {
+        var serviceImplementation = infraestructureAssembly.GetTypes().SingleOrDefault(x => x.IsClass && x.IsPublic && ti.IsAssignableFrom(x));
+        if (serviceImplementation == null)
+            Console.WriteLine("Warning: Too many implementations for the same service abstract interface");
+        else
+        {
+            builder.Services.AddTransient(ti, serviceImplementation);
+        }
+    }
 }

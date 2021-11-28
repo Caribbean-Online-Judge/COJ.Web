@@ -1,4 +1,5 @@
 ﻿using COJ.Web.Domain.Abstract;
+using COJ.Web.Infraestructure.Environment;
 
 using System.Net;
 using System.Net.Mail;

@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,9 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace COJ.Web.Infraestructure
+using SystemEnvironment = System.Environment;
+
+namespace COJ.Web.Infraestructure.Environment
 {
     public sealed class AppEnvironment
     {
@@ -17,9 +18,14 @@ namespace COJ.Web.Infraestructure
         public const string SMTP_HOST_KEY = "SMTP_HOST";
         public const string SMTP_PORT_KEY = "SMTP_PORT";
 
+        public IConfiguration Configuration { get; }
+
+        private readonly JwtSettings jwtSettings;
+
         public AppEnvironment(IConfiguration configuration)
         {
             Configuration = configuration;
+            jwtSettings = new JwtSettings(configuration);
         }
 
         public string DatabaseConnectionString
@@ -34,7 +40,8 @@ namespace COJ.Web.Infraestructure
             }
         }
 
-        public IConfiguration Configuration { get; }
+        public JwtSettings Jwt => jwtSettings;
+
         public string SmtpHost => Configuration.GetValue<string>(SMTP_HOST_KEY);
         public int SmtpPort => Configuration.GetValue<int>(SMTP_PORT_KEY);
 
@@ -45,7 +52,7 @@ namespace COJ.Web.Infraestructure
 
         public static void LoadEnvFile()
         {
-            var filePath = Path.Join(Environment.CurrentDirectory, ".env");
+            var filePath = Path.Join(SystemEnvironment.CurrentDirectory, ".env");
             if (!File.Exists(filePath))
                 return;
 
@@ -58,7 +65,7 @@ namespace COJ.Web.Infraestructure
                 if (parts.Length != 2)
                     continue;
 
-                Environment.SetEnvironmentVariable(parts[0], parts[1]);
+                SystemEnvironment.SetEnvironmentVariable(parts[0], parts[1]);
             }
         }
 

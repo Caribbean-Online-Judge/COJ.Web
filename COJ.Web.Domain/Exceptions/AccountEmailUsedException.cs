@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace COJ.Web.Infraestructure.Exceptions
+namespace COJ.Web.Domain.Exceptions
 {
+    [Serializable]
     public sealed class AccountEmailUsedException : Exception
     {
         public AccountEmailUsedException()

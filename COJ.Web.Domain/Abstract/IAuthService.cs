@@ -7,7 +7,14 @@ public interface IAuthService
 {
     Task<Account> SignUp(SignUpModel request);
 
-    Account SignIn(Account account);
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="account"></param>
+    /// <param name="argument"></param>
+    /// <returns></returns>
+    /// <exception cref="NotAuthorizedException">When the credentials are wrong</exception>
+    Task<SignInResult> SignIn(SignInModel account, SignInArguments argument);
 
     Account RecoverAccount(string emailOrUsername);
 }
