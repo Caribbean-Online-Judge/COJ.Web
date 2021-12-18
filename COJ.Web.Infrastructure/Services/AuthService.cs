@@ -117,7 +117,7 @@ public sealed class AuthService : IAuthService
         var accountToken = await _mediator.Send(new CreateAccountTokenCommand()
         {
             Account = newAccount,
-            ExpirationTime = TimeSpan.FromHours(2),
+            ExpirationTime = DateTime.UtcNow.AddHours(12),
             Token = Guid.NewGuid().ToString(),
             Type = AccountTokenType.EmailConfirmation
         });

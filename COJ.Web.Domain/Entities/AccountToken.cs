@@ -10,6 +10,6 @@ public class AccountToken : BaseEntity
     public string Token { get; set; }
 
     public AccountTokenType Type { get; set; }
-    public TimeSpan ExpirationTime { get; set; }
+    public DateTime ExpirationTime { get; set; }
 }
 

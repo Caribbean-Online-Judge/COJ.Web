@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace COJ.Web.Infrastructure.MediatR.Handlers;
 
-public class GetProblemByIdQueryHandler : IRequestHandler<GetProblemByIdQuery, QueryResult<ProblemFeatures>>
+public class GetProblemByIdQueryHandler : IRequestHandler<GetProblemByIdQuery, Result<ProblemFeatures>>
 {
     private readonly MainDbContext _db;
 
@@ -18,7 +18,7 @@ public class GetProblemByIdQueryHandler : IRequestHandler<GetProblemByIdQuery, Q
         _db = db;
     }
 
-    public Task<QueryResult<ProblemFeatures>> Handle(GetProblemByIdQuery request, CancellationToken cancellationToken)
+    public Task<Result<ProblemFeatures>> Handle(GetProblemByIdQuery request, CancellationToken cancellationToken)
     {
         try
         {
@@ -36,14 +36,14 @@ public class GetProblemByIdQueryHandler : IRequestHandler<GetProblemByIdQuery, Q
 
             if (!problem.ExistTranslationFor(request.Locale))
                 throw new NotExistTranslationException();
-        
+
             var problemsDetails = new ProblemFeatures
             {
                 Id = problem.Id,
                 Title = problem.GetLocalizedTitle(request.Locale),
                 Description = problem.GetLocalizedDescription(request.Locale),
                 CreatedAt = problem.CreatedAt,
-                
+
                 Statistics = new ProblemDetailsStatistics()
                 {
                     Points = problem.Points,
@@ -64,15 +64,15 @@ public class GetProblemByIdQueryHandler : IRequestHandler<GetProblemByIdQuery, Q
                 },
                 LocalesAvailable = localesAvailable
             };
-            
-            return Task.FromResult(new QueryResult<ProblemFeatures>()
+
+            return Task.FromResult(new Result<ProblemFeatures>()
             {
-                Result = problemsDetails
+                Value = problemsDetails
             });
         }
         catch (Exception e)
         {
-            return Task.FromResult(new QueryResult<ProblemFeatures>()
+            return Task.FromResult(new Result<ProblemFeatures>()
             {
                 HasError = true,
                 Exception = e

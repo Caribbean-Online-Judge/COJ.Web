@@ -63,7 +63,7 @@ public sealed class ProblemService : IProblemService
         return response;
     }
 
-    public async Task<QueryResult<ProblemFeatures>> GetProblemDetailsById(int id, string locale = Locales.DefaultLocale)
+    public async Task<Result<ProblemFeatures>> GetProblemDetailsById(int id, string locale = Locales.DefaultLocale)
     {
         var details = await _mediator.Send(new GetProblemByIdQuery
         {

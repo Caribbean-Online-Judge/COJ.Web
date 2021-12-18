@@ -11,5 +11,5 @@ public interface IProblemService
 
     public Task<Problem> CreateProblem(CreateProblemRequest request);
     Task<bool> DeleteProblemById(int id);
-    Task<QueryResult<ProblemFeatures>> GetProblemDetailsById(int id, string locale = Locales.DefaultLocale);
+    Task<Result<ProblemFeatures>> GetProblemDetailsById(int id, string locale = Locales.DefaultLocale);
 }

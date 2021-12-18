@@ -52,7 +52,7 @@ public class ProblemController : Controller
             };
         }
 
-        return Ok(result.Result);
+        return Ok(result.Value);
     }
 
     /// <summary>

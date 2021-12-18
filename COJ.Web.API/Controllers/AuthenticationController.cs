@@ -4,7 +4,6 @@ using COJ.Web.Domain.Abstract;
 using COJ.Web.Domain.Exceptions;
 using COJ.Web.Domain.Models;
 using COJ.Web.Infrastructure.Extensions;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,11 +15,11 @@ namespace COJ.Web.API.Controllers;
 public class AuthenticationController : ControllerBase
 {
     private IAuthService _authService;
+
     public AuthenticationController(IAuthService authService)
     {
         _authService = authService;
     }
-
 
     /// <summary>
     /// Create a new Account.
@@ -43,7 +42,8 @@ public class AuthenticationController : ControllerBase
             {
                 Code = ResponseCodes.EMAIL_IN_USE,
                 Message = "The provided email is used!"
-            }); ;
+            });
+            ;
         }
     }
 
@@ -89,8 +89,7 @@ public class AuthenticationController : ControllerBase
 
         if (result == null)
             return Unauthorized();
-        
+
         return Ok(result);
     }
 }
-
