@@ -1,4 +1,6 @@
-﻿using COJ.Web.Infrastructure.Extensions;
+﻿using COJ.Web.Domain.Abstract;
+using COJ.Web.Domain.Models;
+using COJ.Web.Infrastructure.Extensions;
 using COJ.Web.Infrastructure.MediatR.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -9,13 +11,27 @@ namespace COJ.Web.API.Controllers;
 [Route("v1/account")]
 [ApiController]
 [Authorize]
+[Produces("application/json")]
 public class AccountController : Controller
 {
-    private readonly IMediator _mediator;
+    private readonly IAccountService _accountService;
 
-    public AccountController(IMediator mediator)
+    public AccountController(IAccountService accountService)
     {
-        _mediator = mediator;
+        _accountService = accountService;
+    }
+
+    [HttpGet("confirm")]
+    [AllowAnonymous]
+    public async Task<ActionResult> ConfirmAccount([FromQuery] ConfirmAccountRequest request)
+    {
+        var result = await _accountService.ConfirmAccount(request);
+        return result.HasError
+            ? BadRequest(new
+            {
+                result.Message
+            })
+            : Ok();
     }
 
     [HttpGet]
@@ -26,10 +42,7 @@ public class AccountController : Controller
         if (userId == null)
             return Unauthorized();
 
-        var account = await _mediator.Send(new GetAccountByIdQuery
-        {
-            Id = userId.Value
-        });
+        var account = await _accountService.GetAccountById(userId.Value);
 
         return Ok(new
         {

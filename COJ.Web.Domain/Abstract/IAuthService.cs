@@ -13,7 +13,7 @@ public interface IAuthService
     /// <param name="account"></param>
     /// <param name="argument"></param>
     /// <returns></returns>
-    /// <exception cref="NotAuthorizedException">When the credentials are wrong</exception>
+    /// <exception cref="NotAuhorizedException">When the credentials are wrong</exception>
     Task<SignInResult> SignIn(SignInModel account, SignInArguments argument);
 
     Account RecoverAccount(string emailOrUsername);

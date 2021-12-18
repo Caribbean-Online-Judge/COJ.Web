@@ -10,6 +10,6 @@ public class CreateAccountTokenCommand : IRequest<AccountToken>
 {
     public string Token { get; set; }
     public Account Account { get; set; }
-    public TimeSpan ExpirationTime { get; set; }
+    public DateTime ExpirationTime { get; set; }
     public AccountTokenType Type { get; set; }
 }
