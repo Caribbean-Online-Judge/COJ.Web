@@ -7,9 +7,11 @@ namespace COJ.Web.Domain.Abstract;
 
 public interface IProblemService
 {
-    public Task<PaginatedResult<object>> GetPaginatedProblems(PaginationArguments arguments);
+    Task<PaginatedResult<object>> GetPaginatedProblems(PaginationArguments arguments);
 
-    public Task<Problem> CreateProblem(CreateProblemRequest request);
+    Task<Problem> CreateProblem(CreateProblemRequest request);
     Task<bool> DeleteProblemById(int id);
     Task<Result<ProblemFeatures>> GetProblemDetailsById(int id, string locale = Locales.DefaultLocale);
+    Task<Result<bool>> AddNewSubmission(int requestProblemId);
+    Task<Result<ProblemStatistic>> GetProblemStatistics(int problemId);
 }

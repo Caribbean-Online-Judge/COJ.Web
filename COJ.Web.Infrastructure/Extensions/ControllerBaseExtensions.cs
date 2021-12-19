@@ -2,13 +2,16 @@
 
 using System.Security.Claims;
 
-namespace COJ.Web.Infrastructure.Extensions
-{
+namespace COJ.Web.Infrastructure.Extensions;
+
     public static class ControllerBaseExtensions
     {
-        public static string? GetAuthenticatedUsedId(this ControllerBase controller)
+        public static BadRequestObjectResult BadRequestWithMessage(this ControllerBase controller, string message)
         {
-            return controller.HttpContext.User.Claims.SingleOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+            return controller.BadRequest(new
+            {
+                Message = message,
+            });
         }
     }
-}
+

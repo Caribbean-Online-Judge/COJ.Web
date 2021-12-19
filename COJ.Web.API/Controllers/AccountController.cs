@@ -39,10 +39,7 @@ public class AccountController : Controller
     {
         var userId = HttpContext.GetUserId();
 
-        if (userId == null)
-            return Unauthorized();
-
-        var account = await _accountService.GetAccountById(userId.Value);
+        var account = await _accountService.GetAccountById(userId);
 
         return Ok(new
         {

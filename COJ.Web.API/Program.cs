@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using COJ.Web.Domain.Attributes;
 using COJ.Web.Domain.Entities;
 using COJ.Web.Domain.Values;
 using COJ.Web.Infrastructure.Extensions;
@@ -141,7 +142,10 @@ void RegisterServices()
             Console.WriteLine("Warning: Too many implementations for the same service abstract interface");
         else
         {
-            builder.Services.AddTransient(ti, serviceImplementation);
+            if (serviceImplementation.IsDefined(typeof(InjectAsSingletonAttribute), false))
+                builder.Services.AddSingleton(ti, serviceImplementation);
+            else
+                builder.Services.AddTransient(ti, serviceImplementation);
         }
     }
 }
