@@ -5,11 +5,9 @@ namespace COJ.Web.Infrastructure.Extensions;
 
 public static class HttpContextExtensions
 {
-    public static int? GetUserId(this HttpContext context)
+    public static int GetUserId(this HttpContext context)
     {
         var idClaimValue= context.User.Claims.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-        if (int.TryParse(idClaimValue, out var result))
-            return result;
-        return null;
+        return int.Parse(idClaimValue!);
     }
 }

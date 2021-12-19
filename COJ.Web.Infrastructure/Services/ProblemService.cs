@@ -73,4 +73,22 @@ public sealed class ProblemService : IProblemService
 
         return details;
     }
+
+    public async Task<Result<bool>> AddNewSubmission(int problemId)
+    {
+        var result = await _mediator.Send(new AddNewProblemSubmissionStatisticsCommand()
+        {
+            ProblemId = problemId
+        });
+
+        return result;
+    }
+
+    public async Task<Result<ProblemStatistic>> GetProblemStatistics(int problemId)
+    {
+        return await _mediator.Send(new GetProblemStatisticsQuery
+        {
+            ProblemId = problemId
+        });
+    }
 }

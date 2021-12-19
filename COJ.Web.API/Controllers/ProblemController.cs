@@ -4,6 +4,7 @@ using COJ.Web.Domain.Entities;
 using COJ.Web.Domain.Exceptions;
 using COJ.Web.Domain.Models;
 using COJ.Web.Domain.Values;
+using COJ.Web.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,13 @@ public class ProblemController : Controller
         _problemService = problemService;
     }
 
+    /// <summary>
+    /// List all problems using pagination.
+    /// </summary>
+    /// <param name="arguments"></param>
+    /// <returns></returns>
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> AllProblems([FromQuery] PaginationArguments arguments)
     {
         var problems = await _problemService.GetPaginatedProblems(arguments);
@@ -53,6 +60,20 @@ public class ProblemController : Controller
         }
 
         return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Get problem statistics.
+    /// </summary>
+    /// <param name="id">Problem id.</param>
+    /// <returns></returns>
+    [HttpGet("{id:int}/statistics")]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> ProblemStatistics(int id)
+    {
+        var result = await _problemService.GetProblemStatistics(id);
+        return result.HasError ? this.BadRequestWithMessage(string.Empty) : Ok(result.Value.GetPublicProjection());
     }
 
     /// <summary>

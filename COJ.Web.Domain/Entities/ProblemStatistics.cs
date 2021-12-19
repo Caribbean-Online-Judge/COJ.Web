@@ -7,7 +7,7 @@ public class ProblemStatistic : BaseEntity
 {
     public int Accepted { get; set; }
     public int WrongAnswer { get; set; }
-    public int CE { get; set; }
+    public int CompilationError { get; set; }
     public int RuntimeError { get; set; }
     public int TimeLimit { get; set; }
     public int MemoryLimit { get; set; }
@@ -20,5 +20,27 @@ public class ProblemStatistic : BaseEntity
     public int accu { get; set; }
     public int Ivf { get; set; }
     public int Shipping { get; set; }
+
+    public object GetPublicProjection()
+    {
+        return new
+        {
+            Accepted,
+            WrongAnswer,
+            CompilationError,
+            RuntimeError,
+            TimeLimit,
+            MemoryLimit,
+            FLE,
+            OutputLimit,
+            Ole,
+            PresentationError,
+            SV,
+            Uq,
+            accu,
+            Ivf,
+            Shipping
+        };
+    }
 }
 

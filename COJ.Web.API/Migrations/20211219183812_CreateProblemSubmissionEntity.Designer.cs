@@ -3,6 +3,7 @@ using System;
 using COJ.Web.Infrestructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace COJ.Web.API.Migrations
 {
     [DbContext(typeof(MainDbContext))]
-    partial class MainDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211219183812_CreateProblemSubmissionEntity")]
+    partial class CreateProblemSubmissionEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -523,7 +525,7 @@ namespace COJ.Web.API.Migrations
                     b.Property<int>("Accepted")
                         .HasColumnType("integer");
 
-                    b.Property<int>("CompilationError")
+                    b.Property<int>("CE")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
@@ -605,11 +607,14 @@ namespace COJ.Web.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("LanguageId")
+                    b.Property<bool>("FirstAccepted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("JudgeFlag")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("LastJudgingDateTime")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int>("LanguageId")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("Lock")
                         .HasColumnType("boolean");
@@ -626,10 +631,6 @@ namespace COJ.Web.API.Migrations
                     b.Property<int>("ProblemId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("SourceCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -641,9 +642,6 @@ namespace COJ.Web.API.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Verdict")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
