@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Net.Mime;
 using COJ.Web.Domain.Abstract;
 using COJ.Web.Domain.Entities;
 using COJ.Web.Domain.Exceptions;
@@ -6,14 +6,14 @@ using COJ.Web.Domain.Models;
 using COJ.Web.Domain.Values;
 using COJ.Web.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace COJ.Web.API.Controllers;
 
 [Route("v1/problem")]
 [ApiController]
-[Produces("application/json")]
+[Produces(MediaTypeNames.Application.Json)]
+[Consumes(MediaTypeNames.Application.Json)]
 public class ProblemController : Controller
 {
     private readonly IProblemService _problemService;
@@ -106,16 +106,29 @@ public class ProblemController : Controller
         });
     }
 
+    /// <summary>
+    /// Edit a problem.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpPatch("{id:int}")]
     [Authorize(Policy = AccountPermissions.UpdateProblem)]
+    [ProducesResponseType(StatusCodes.Status501NotImplemented)]
     public IActionResult Edit(int id)
     {
         return StatusCode(StatusCodes.Status501NotImplemented);
     }
 
 
+    /// <summary>
+    /// Delete a problem.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpDelete("{id:int}")]
     [Authorize(Policy = AccountPermissions.DeleteProblem)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Delete(int id)
     {
         var result = await _problemService.DeleteProblemById(id);

@@ -7,6 +7,8 @@ public class Institution : BaseEntity
     /// Name of the institution.
     /// </summary>
     public string Name { get; set; }
+
+    public int CountryId { get; set; }
     public Country Country { get; set; }
     /// <summary>
     /// Indicate if the institution is enabled.

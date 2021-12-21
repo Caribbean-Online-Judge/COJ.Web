@@ -28,21 +28,32 @@ builder.Logging.AddSerilog(SetUpLogger());
 AppEnvironment.LoadEnvFile();
 builder.Configuration.AddEnvironmentVariables();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
+        policy.AllowAnyOrigin();
+    });
+});
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddAuthorization(RegisterPolicies);
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opt =>
 {
-    opt.TokenValidationParameters = new()
+    opt.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
         ValidateLifetime = true,
-        //ValidateIssuerSigningKey = false,
-        //ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        //ValidAudience = builder.Configuration["Jwt:Issuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT_SECRET"]))
+        ValidateIssuer = builder.Configuration.GetValue<bool>(JwtSettings.VALIDATE_ISSUER_KEY),
+        ValidateAudience =  builder.Configuration.GetValue<bool>(JwtSettings.VALIDATE_AUDIENCE_KEY),
+        ValidIssuers = builder.Configuration.GetValue<string[]>(JwtSettings.VALID_ISSUER_KEY),
+        ValidAudiences = builder.Configuration.GetValue<string[]>(JwtSettings.VALID_AUDIENCE_KEY),
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT_SECRET"])),
+        
     };
 });
 
@@ -63,27 +74,24 @@ localizationOptions.ApplyCurrentCultureToResponseHeaders = true;
 
 app.UseRequestLocalization(localizationOptions);
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseCors();
+}
+else if (app.Environment.IsStaging())
+{
+    app.UseCors();
+
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+    });
 }
 
-if (app.Environment.IsStaging())
-{
-    app.UseSwagger();
+app.UseSwagger();
+
+if (app.Configuration.GetValue("ENABLE_SWAGGER_UI", false))
     app.UseSwaggerUI();
-}
-
-//app.UseHttpsRedirection();
-
-//app.UseSerilogRequestLogging();
-
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -106,23 +114,30 @@ void RegisterDatabase()
 
 void AddSwagger()
 {
+    var titleSuffix = builder.Environment.IsProduction() ? string.Empty : "(Staging)";
+
     builder.Services.AddSwaggerGen(options =>
     {
+        if (!builder.Environment.IsDevelopment())
+            options.AddServer(new OpenApiServer
+            {
+                Url = builder.Configuration["HOST_URL"]
+            });
+        
+        options.EnableAnnotations();
         options.SwaggerDoc("v1", new OpenApiInfo
         {
             Version = "v1",
-            Title = "Caribbean Online Judge",
-            Contact = new OpenApiContact()
+            Title = $"Caribbean Online Judge {titleSuffix}",
+            Contact = new OpenApiContact
             {
-                Email = "community@caribbeanonlinejudge.org",
+                Email = "community@caribbeanonlinejudge.org"
             }
         });
 
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
-            Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
-                      Enter 'Bearer' [space] and then your token in the text input below.
-                      \r\n\r\nExample: 'Bearer 12345abcdef'",
+            Description = "JWT Authorization header using the Bearer scheme. \nExample: 'Bearer oahsdoahsodiah'",
             Name = "Authorization",
             In = ParameterLocation.Header,
             Type = SecuritySchemeType.ApiKey,
@@ -188,7 +203,7 @@ void RegisterPolicies(AuthorizationOptions options)
 
 ILogger SetUpLogger()
 {
-   return new LoggerConfiguration()
+    return Log.Logger = new LoggerConfiguration()
         .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
         .Enrich.FromLogContext()
         .WriteTo.File(AppEnvironment.LogsFileName, flushToDiskInterval: TimeSpan.FromSeconds(1),

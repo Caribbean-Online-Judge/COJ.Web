@@ -1,17 +1,16 @@
 ﻿using COJ.Web.Domain.Abstract;
 using COJ.Web.Domain.Models;
 using COJ.Web.Infrastructure.Extensions;
-using COJ.Web.Infrastructure.MediatR.Queries;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace COJ.Web.API.Controllers;
 
 [Route("v1/account")]
 [ApiController]
-[Authorize]
 [Produces("application/json")]
+[Consumes("application/json")]
 public class AccountController : Controller
 {
     private readonly IAccountService _accountService;
@@ -20,9 +19,12 @@ public class AccountController : Controller
     {
         _accountService = accountService;
     }
-
+    
     [HttpGet("confirm")]
     [AllowAnonymous]
+    [SwaggerOperation("Confirm account email")]
+    [SwaggerResponse(StatusCodes.Status200OK)]
+    [SwaggerResponse(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ConfirmAccount([FromQuery] ConfirmAccountRequest request)
     {
         var result = await _accountService.ConfirmAccount(request);
@@ -33,8 +35,11 @@ public class AccountController : Controller
             })
             : Ok();
     }
-
+    
     [HttpGet]
+    [Authorize]
+    [SwaggerOperation("Get current account information")]
+    [SwaggerResponse(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAccount()
     {
         var userId = HttpContext.GetUserId();
@@ -44,7 +49,6 @@ public class AccountController : Controller
         return Ok(new
         {
             account.Username,
-            account.Nick,
             account.FirstName,
             account.LastName,
             account.Sex,
@@ -60,14 +64,20 @@ public class AccountController : Controller
             account.Settings
         });
     }
-
-    [HttpPut]
-    public IActionResult Put()
+    
+    [HttpPatch]
+    [Authorize]
+    [SwaggerOperation("Update current account")]
+    [SwaggerResponse(StatusCodes.Status501NotImplemented)]
+    public IActionResult Update()
     {
         return StatusCode(StatusCodes.Status501NotImplemented);
     }
-
+    
     [HttpDelete]
+    [Authorize]
+    [SwaggerOperation("Delete current account")]
+    [SwaggerResponse(StatusCodes.Status501NotImplemented)]
     public IActionResult Delete()
     {
         return StatusCode(StatusCodes.Status501NotImplemented);

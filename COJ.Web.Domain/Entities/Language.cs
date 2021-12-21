@@ -4,8 +4,6 @@ namespace COJ.Web.Domain.Entities;
 
 public class Language : BaseEntity
 {
-    public int Id { get; set; }
-
     /// <summary>
     /// Name of the language.
     /// </summary>

@@ -44,3 +44,20 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+
+  deploy: 
+    needs: [build-and-push-image]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Execute SSH commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            cd apps/coj-backend
+            docker-compose pull
+            docker-compose up -d --force-recreate

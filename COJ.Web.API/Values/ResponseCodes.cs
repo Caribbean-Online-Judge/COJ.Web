@@ -1,7 +1,6 @@
-﻿namespace COJ.Web.API.Values
+﻿namespace COJ.Web.API.Values;
+
+public class ResponseCodes
 {
-    public enum ResponseCodes
-    {
-        EMAIL_IN_USE
-    }
+    public const string EmailInUse = "EMAIL_IN_USE";
 }

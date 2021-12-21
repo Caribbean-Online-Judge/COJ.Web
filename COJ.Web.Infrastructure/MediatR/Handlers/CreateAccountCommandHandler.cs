@@ -33,7 +33,6 @@ namespace COJ.Web.Infrastructure.MediatR.Handlers
                         Birthday = request.Birthday,
                         Email = request.Email,
                         LastName = request.LastName,
-                        Nick = request.Nick,
                         Password = request.Password,
                         Username = request.Username,
                         Sex = request.Sex,

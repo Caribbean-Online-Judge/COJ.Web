@@ -1,13 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
-
 using SystemEnvironment = System.Environment;
 
 namespace COJ.Web.Infrastructure.Environment
@@ -17,6 +16,7 @@ namespace COJ.Web.Infrastructure.Environment
         public const string DATABASE_HOST_KEY = "DATABASE_HOST";
         public const string SMTP_HOST_KEY = "SMTP_HOST";
         public const string SMTP_PORT_KEY = "SMTP_PORT";
+        public const string SMTP_SSL_KEY = "SMTP_SSL";
 
         public IConfiguration Configuration { get; }
 
@@ -44,18 +44,27 @@ namespace COJ.Web.Infrastructure.Environment
 
         public string SmtpHost => Configuration.GetValue<string>(SMTP_HOST_KEY);
         public int SmtpPort => Configuration.GetValue<int>(SMTP_PORT_KEY);
+        public bool SmtpSsl => Configuration.GetValue<bool>(SMTP_SSL_KEY);
+
 
         public string FromMailAddress => Configuration.GetValue<string>("SMTP_FROM");
 
         public string SmtpUsername => Configuration.GetValue<string>("SMTP_USERNAME");
         public string SmtpPassword => Configuration.GetValue<string>("SMTP_PASSWORD");
+        public string AppDomain => Configuration.GetValue<string>("APP_DOMAIN");
+        public static string CurrentDirectory => Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+        public static string LogsDirectory => Path.Combine(CurrentDirectory, "Logs");
+        public static string LogsFileName => Path.Combine(CurrentDirectory, "Logs", "Log");
+        public static string AssetsFolder =>
+            Path.Combine(CurrentDirectory, "Assets");
 
-        public static string LogsDirectory => Path.Combine(System.Environment.CurrentDirectory, "Logs");
-        public static string LogsFileName => Path.Combine(System.Environment.CurrentDirectory, "Logs", "Log");
-        
+        public static string EmailsTemplatesFolder => Path.Combine(AssetsFolder, "Email");
+
+
+
         public static void LoadEnvFile()
         {
-            var filePath = Path.Join(SystemEnvironment.CurrentDirectory, ".env");
+            var filePath = Path.Join(CurrentDirectory, ".env");
             if (!File.Exists(filePath))
                 return;
 
@@ -71,7 +80,5 @@ namespace COJ.Web.Infrastructure.Environment
                 SystemEnvironment.SetEnvironmentVariable(parts[0], parts[1]);
             }
         }
-
     }
-
 }

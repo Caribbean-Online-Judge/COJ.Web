@@ -72,10 +72,6 @@ namespace COJ.Web.API.Migrations
                     b.Property<int?>("LocaleId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Nick")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("text");

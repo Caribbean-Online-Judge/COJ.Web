@@ -1,33 +1,32 @@
 using COJ.Web.API.Values;
-using COJ.Web.Domain;
 using COJ.Web.Domain.Abstract;
 using COJ.Web.Domain.Exceptions;
 using COJ.Web.Domain.Models;
 using COJ.Web.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace COJ.Web.API.Controllers;
 
 [ApiController]
 [Route("v1/auth")]
-[AllowAnonymous]
+[Produces("application/json")]
+[Consumes("application/json")]
 public class AuthenticationController : ControllerBase
 {
-    private IAuthService _authService;
+    private readonly IAuthService _authService;
 
     public AuthenticationController(IAuthService authService)
     {
         _authService = authService;
     }
-
-    /// <summary>
-    /// Create a new Account.
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
-    /// <response code="400">If there is any validation error, for example, the provided email is used by another account.</response>
+    
     [HttpPost("sign-up")]
+    [AllowAnonymous]
+    [SwaggerOperation("Sign up")]
+    [SwaggerResponse(StatusCodes.Status200OK)]
+    [SwaggerResponse(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SignUp([FromBody] SignUpModel request)
     {
         try
@@ -38,27 +37,24 @@ public class AuthenticationController : ControllerBase
         }
         catch (AccountEmailUsedException)
         {
-            return BadRequest(new
+            return BadRequest(new BadRequestResponse
             {
-                Code = ResponseCodes.EMAIL_IN_USE,
+                Code = ResponseCodes.EmailInUse,
                 Message = "The provided email is used!"
             });
-            ;
         }
     }
 
-    /// <summary>
-    /// Create a new session
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
-    /// <response code="401">If the credentials are wrong</response>
     [HttpPost("sign-in")]
+    [AllowAnonymous]
+    [SwaggerOperation("Create a new session")]
+    [SwaggerResponse(StatusCodes.Status200OK)]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> SignIn([FromBody] SignInModel request)
     {
         try
         {
-            var arguments = new SignInArguments()
+            var arguments = new SignInArguments
             {
                 IpAddress = Request.GetClientIpAddress()
             };
@@ -69,20 +65,13 @@ public class AuthenticationController : ControllerBase
         {
             return Unauthorized();
         }
-        catch (Exception)
-        {
-            throw;
-        }
     }
 
-    /// <summary>
-    /// Refresh session token using a provided refresh token
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
-    /// <response code="401">If the refresh token is wrong or was expired.</response>
-    /// <response code="200">With a new token, a new refresh token and the duration related of new token.</response>
     [HttpPost("refresh")]
+    [AllowAnonymous]
+    [SwaggerOperation("Refresh session token using a provided refresh token")]
+    [SwaggerResponse(StatusCodes.Status200OK)]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     {
         var result = await _authService.RefreshToken(request.RefreshToken);
