@@ -23,6 +23,9 @@
 
     <ItemGroup>
         <None Remove=".env" />
+        <None Update="Assets\Email\en\AccountConfirmation.html">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -43,6 +46,10 @@
 
     <ItemGroup>
         <ProjectReference Include="..\COJ.Web.Infrastructure\COJ.Web.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Migrations" />
     </ItemGroup>
 
 </Project>

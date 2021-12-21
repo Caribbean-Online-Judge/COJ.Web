@@ -1,11 +1,13 @@
 using System.ComponentModel;
 
 namespace COJ.Web.Domain.Entities;
+
 public class AccountSettings : BaseEntity
 {
-    public static readonly AccountSettings Default = new AccountSettings() { 
+    public static AccountSettings Default => new()
+    {
         ShowBirthday = false,
-        ShowEmail= false,
+        ShowEmail = false,
         SeeSolutions = true,
         EnabledAdvancedEditor = true,
         ContestNotifications = true,
@@ -18,13 +20,12 @@ public class AccountSettings : BaseEntity
     /// </summary>
     [DefaultValue(false)]
     public bool ShowEmail { get; set; }
-    [DefaultValue(true)]
-    public bool ShowBirthday { get; set; }
+
+    [DefaultValue(true)] public bool ShowBirthday { get; set; }
     public bool SeeSolutions { get; set; }
     public bool EnabledAdvancedEditor { get; set; }
 
     public bool ContestNotifications { get; set; }
     public bool EntriesNotifications { get; set; }
     public bool SubmitionNotification { get; set; }
-
 }

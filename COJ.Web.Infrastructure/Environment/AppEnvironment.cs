@@ -1,13 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
-
 using SystemEnvironment = System.Environment;
 
 namespace COJ.Web.Infrastructure.Environment
@@ -50,8 +49,13 @@ namespace COJ.Web.Infrastructure.Environment
         public string SmtpUsername => Configuration.GetValue<string>("SMTP_USERNAME");
         public string SmtpPassword => Configuration.GetValue<string>("SMTP_PASSWORD");
 
-        public static string LogsDirectory => Path.Combine(System.Environment.CurrentDirectory, "Logs");
-        public static string LogsFileName => Path.Combine(System.Environment.CurrentDirectory, "Logs", "Log");
+        public static string CurrentDirectory => Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+        public static string LogsDirectory => Path.Combine(CurrentDirectory, "Logs");
+        public static string LogsFileName => Path.Combine(CurrentDirectory, "Logs", "Log");
+        public static string AssetsFolder =>
+            Path.Combine(CurrentDirectory, "Assets");
+
+        public static string EmailsTemplatesFolder => Path.Combine(AssetsFolder, "Email");
         
         public static void LoadEnvFile()
         {
@@ -71,7 +75,5 @@ namespace COJ.Web.Infrastructure.Environment
                 SystemEnvironment.SetEnvironmentVariable(parts[0], parts[1]);
             }
         }
-
     }
-
 }
