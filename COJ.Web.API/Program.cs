@@ -22,7 +22,7 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddAuthorization((options) => { RegisterPolicies(options); });
+builder.Services.AddAuthorization(RegisterPolicies);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
 {
     opt.TokenValidationParameters = new()
@@ -56,6 +56,12 @@ app.UseRequestLocalization(localizationOptions);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+if (app.Environment.IsStaging())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -160,6 +166,7 @@ void RegisterPolicies(AuthorizationOptions options)
         policyBuilder => policyBuilder.RequirePermission(AccountPermissions.UpdateProblem));
 }
 
+// For compatibility with End2End Tests
 public partial class Program
 {
 }

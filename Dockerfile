@@ -7,9 +7,11 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["COJ.Web.API/COJ.Web.API.csproj", "COJ.Web.API/"]
-RUN dotnet restore "COJ.Web.API/COJ.Web.API.csproj"
 COPY . .
+RUN dotnet restore "COJ.Web.Domain/COJ.Web.Domain.csproj"
+RUN dotnet restore "COJ.Web.Infrastructure/COJ.Web.Infrastructure.csproj"
+RUN dotnet restore "COJ.Web.API/COJ.Web.API.csproj"
+
 WORKDIR "/src/COJ.Web.API"
 RUN dotnet build "COJ.Web.API.csproj" -c Release -o /app/build
 
