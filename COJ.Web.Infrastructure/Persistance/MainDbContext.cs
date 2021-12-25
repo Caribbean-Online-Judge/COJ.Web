@@ -26,6 +26,7 @@ public class MainDbContext : DbContext
     public DbSet<ProblemDataSet> ProblemDataSets { get; set; }
     public DbSet<ProblemStatistic> ProblemStatistics { get; set; }
     public DbSet<ProblemSubmission> ProblemSubmissions { get; set; }
+    public DbSet<AccountStatistic> AccountStatistics { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     #endregion
 

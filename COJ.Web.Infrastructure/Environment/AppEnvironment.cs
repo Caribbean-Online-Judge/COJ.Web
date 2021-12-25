@@ -50,6 +50,9 @@ namespace COJ.Web.Infrastructure.Environment
         public string SmtpUsername => Configuration.GetValue<string>("SMTP_USERNAME");
         public string SmtpPassword => Configuration.GetValue<string>("SMTP_PASSWORD");
 
+        public static string LogsDirectory => Path.Combine(System.Environment.CurrentDirectory, "Logs");
+        public static string LogsFileName => Path.Combine(System.Environment.CurrentDirectory, "Logs", "Log");
+        
         public static void LoadEnvFile()
         {
             var filePath = Path.Join(SystemEnvironment.CurrentDirectory, ".env");

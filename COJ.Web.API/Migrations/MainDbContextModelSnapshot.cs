@@ -86,6 +86,9 @@ namespace COJ.Web.API.Migrations
                     b.Property<int>("Sex")
                         .HasColumnType("integer");
 
+                    b.Property<int>("StatisticsId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Tags")
                         .HasColumnType("text");
 
@@ -107,6 +110,8 @@ namespace COJ.Web.API.Migrations
                     b.HasIndex("LocaleId");
 
                     b.HasIndex("SettingsId");
+
+                    b.HasIndex("StatisticsId");
 
                     b.ToTable("Accounts");
                 });
@@ -177,6 +182,70 @@ namespace COJ.Web.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AccountSettings");
+                });
+
+            modelBuilder.Entity("COJ.Web.Domain.Entities.AccountStatistic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Accepted")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CompilationError")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("FLE")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Ivf")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MemoryLimit")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Ole")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OutputLimit")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PresentationError")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RuntimeError")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SV")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Shipping")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TimeLimit")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Uq")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WrongAnswer")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("accu")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AccountStatistics");
                 });
 
             modelBuilder.Entity("COJ.Web.Domain.Entities.AccountToken", b =>
@@ -743,6 +812,12 @@ namespace COJ.Web.API.Migrations
                         .WithMany()
                         .HasForeignKey("SettingsId");
 
+                    b.HasOne("COJ.Web.Domain.Entities.AccountStatistic", "Statistics")
+                        .WithMany()
+                        .HasForeignKey("StatisticsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Country");
 
                     b.Navigation("Institution");
@@ -752,6 +827,8 @@ namespace COJ.Web.API.Migrations
                     b.Navigation("Locale");
 
                     b.Navigation("Settings");
+
+                    b.Navigation("Statistics");
                 });
 
             modelBuilder.Entity("COJ.Web.Domain.Entities.AccountPermission", b =>

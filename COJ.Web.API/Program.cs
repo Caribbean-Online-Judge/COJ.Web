@@ -13,8 +13,17 @@ using COJ.Web.Domain.Entities;
 using COJ.Web.Domain.Values;
 using COJ.Web.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
+using Serilog;
+using Serilog.Events;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using ILogger = Serilog.ILogger;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// remove default logging providers
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(SetUpLogger());
 
 AppEnvironment.LoadEnvFile();
 builder.Configuration.AddEnvironmentVariables();
@@ -49,7 +58,7 @@ var localizationOptions = new RequestLocalizationOptions()
     .SetDefaultCulture(Locales.DefaultLocale)
     .AddSupportedCultures(Locales.SupportedLocales)
     .AddSupportedUICultures(Locales.SupportedLocales);
-    
+
 localizationOptions.ApplyCurrentCultureToResponseHeaders = true;
 
 app.UseRequestLocalization(localizationOptions);
@@ -67,7 +76,14 @@ if (app.Environment.IsStaging())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+
+//app.UseSerilogRequestLogging();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -96,6 +112,10 @@ void AddSwagger()
         {
             Version = "v1",
             Title = "Caribbean Online Judge",
+            Contact = new OpenApiContact()
+            {
+                Email = "community@caribbeanonlinejudge.org",
+            }
         });
 
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -164,6 +184,16 @@ void RegisterPolicies(AuthorizationOptions options)
         policyBuilder => policyBuilder.RequirePermission(AccountPermissions.DeleteProblem));
     options.AddPolicy(AccountPermissions.UpdateProblem,
         policyBuilder => policyBuilder.RequirePermission(AccountPermissions.UpdateProblem));
+}
+
+ILogger SetUpLogger()
+{
+   return new LoggerConfiguration()
+        .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+        .Enrich.FromLogContext()
+        .WriteTo.File(AppEnvironment.LogsFileName, flushToDiskInterval: TimeSpan.FromSeconds(1),
+            rollingInterval: RollingInterval.Hour)
+        .CreateLogger();
 }
 
 // For compatibility with End2End Tests

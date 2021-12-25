@@ -6,6 +6,10 @@ namespace COJ.Web.Domain.Entities;
 
 public class Account : BaseEntity
 {
+    public Account()
+    {
+        Statistics = new AccountStatistic();
+    }
     public string Username { get; set; }
     public string Nick { get; set; }
     public string Password { get; set; }
@@ -41,5 +45,6 @@ public class Account : BaseEntity
 
     public List<AccountPermission>? Permissions { get; set; }
     public AccountSettings? Settings { get; set; }
+    public AccountStatistic Statistics { get; set; }
     public List<RefreshToken> RefreshTokens { get; set; }
 }

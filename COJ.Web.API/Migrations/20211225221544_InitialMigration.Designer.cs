@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace COJ.Web.API.Migrations
 {
     [DbContext(typeof(MainDbContext))]
-    [Migration("20211217221257_WithRefreshTokens")]
-    partial class WithRefreshTokens
+    [Migration("20211225221544_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -82,13 +82,13 @@ namespace COJ.Web.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("Role")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("SettingsId")
                         .HasColumnType("integer");
 
                     b.Property<int>("Sex")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StatisticsId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Tags")
@@ -112,6 +112,8 @@ namespace COJ.Web.API.Migrations
                     b.HasIndex("LocaleId");
 
                     b.HasIndex("SettingsId");
+
+                    b.HasIndex("StatisticsId");
 
                     b.ToTable("Accounts");
                 });
@@ -184,6 +186,70 @@ namespace COJ.Web.API.Migrations
                     b.ToTable("AccountSettings");
                 });
 
+            modelBuilder.Entity("COJ.Web.Domain.Entities.AccountStatistic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Accepted")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CompilationError")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("FLE")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Ivf")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MemoryLimit")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Ole")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OutputLimit")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PresentationError")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RuntimeError")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SV")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Shipping")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TimeLimit")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Uq")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WrongAnswer")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("accu")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AccountStatistics");
+                });
+
             modelBuilder.Entity("COJ.Web.Domain.Entities.AccountToken", b =>
                 {
                     b.Property<int>("Id")
@@ -198,8 +264,8 @@ namespace COJ.Web.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<TimeSpan>("ExpirationTime")
-                        .HasColumnType("interval");
+                    b.Property<DateTime>("ExpirationTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Token")
                         .IsRequired()
@@ -403,12 +469,11 @@ namespace COJ.Web.API.Migrations
                     b.Property<int>("CaseTimeLimit")
                         .HasColumnType("integer");
 
+                    b.Property<int>("ClassificationId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<bool?>("Enabled")
                         .HasColumnType("boolean");
@@ -431,23 +496,21 @@ namespace COJ.Web.API.Migrations
                     b.Property<bool>("Published")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("SizeLimit")
+                    b.Property<int>("SourceCodeLengthLimit")
                         .HasColumnType("integer");
 
                     b.Property<bool>("SpecialJudge")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("TimeLimit")
+                    b.Property<int>("TotalTimeLimit")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClassificationId");
 
                     b.HasIndex("ProblemStatisticsId");
 
@@ -478,6 +541,35 @@ namespace COJ.Web.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AchievementId");
+
+                    b.ToTable("ProblemClassifications");
+                });
+
+            modelBuilder.Entity("COJ.Web.Domain.Entities.ProblemDataSet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Input")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Output")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int?>("ProblemId")
                         .HasColumnType("integer");
 
@@ -486,11 +578,9 @@ namespace COJ.Web.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AchievementId");
-
                     b.HasIndex("ProblemId");
 
-                    b.ToTable("ProblemClassifications");
+                    b.ToTable("ProblemDataSets");
                 });
 
             modelBuilder.Entity("COJ.Web.Domain.Entities.ProblemStatistic", b =>
@@ -504,7 +594,7 @@ namespace COJ.Web.API.Migrations
                     b.Property<int>("Accepted")
                         .HasColumnType("integer");
 
-                    b.Property<int>("CE")
+                    b.Property<int>("CompilationError")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
@@ -534,6 +624,9 @@ namespace COJ.Web.API.Migrations
                     b.Property<int>("SV")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Shipping")
+                        .HasColumnType("integer");
+
                     b.Property<int>("TimeLimit")
                         .HasColumnType("integer");
 
@@ -554,6 +647,123 @@ namespace COJ.Web.API.Migrations
                     b.ToTable("ProblemStatistics");
                 });
 
+            modelBuilder.Entity("COJ.Web.Domain.Entities.ProblemSubmission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Accepted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("AcceptedCases")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AcceptedTests")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AverageCase")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CpuTime")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("LanguageId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("LastJudgingDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Lock")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("MaxTestCase")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("Memory")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("MinTestCase")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProblemId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SourceCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TestCase")
+                        .HasColumnType("integer");
+
+                    b.Property<double>("Time")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Verdict")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("LanguageId");
+
+                    b.HasIndex("ProblemId");
+
+                    b.ToTable("ProblemSubmissions");
+                });
+
+            modelBuilder.Entity("COJ.Web.Domain.Entities.ProblemTranslation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("LocaleId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ProblemId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LocaleId");
+
+                    b.HasIndex("ProblemId");
+
+                    b.ToTable("ProblemTranslation");
+                });
+
             modelBuilder.Entity("COJ.Web.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
@@ -568,23 +778,8 @@ namespace COJ.Web.API.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("CreatedByIp")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("Expires")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ReplacedByToken")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("Revoked")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("RevokedByIp")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("Token")
                         .IsRequired()
@@ -619,6 +814,12 @@ namespace COJ.Web.API.Migrations
                         .WithMany()
                         .HasForeignKey("SettingsId");
 
+                    b.HasOne("COJ.Web.Domain.Entities.AccountStatistic", "Statistics")
+                        .WithMany()
+                        .HasForeignKey("StatisticsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Country");
 
                     b.Navigation("Institution");
@@ -628,6 +829,8 @@ namespace COJ.Web.API.Migrations
                     b.Navigation("Locale");
 
                     b.Navigation("Settings");
+
+                    b.Navigation("Statistics");
                 });
 
             modelBuilder.Entity("COJ.Web.Domain.Entities.AccountPermission", b =>
@@ -661,11 +864,19 @@ namespace COJ.Web.API.Migrations
 
             modelBuilder.Entity("COJ.Web.Domain.Entities.Problem", b =>
                 {
+                    b.HasOne("COJ.Web.Domain.Entities.ProblemClassification", "Classification")
+                        .WithMany()
+                        .HasForeignKey("ClassificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("COJ.Web.Domain.Entities.ProblemStatistic", "ProblemStatistics")
                         .WithMany()
                         .HasForeignKey("ProblemStatisticsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Classification");
 
                     b.Navigation("ProblemStatistics");
                 });
@@ -678,11 +889,56 @@ namespace COJ.Web.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Achievement");
+                });
+
+            modelBuilder.Entity("COJ.Web.Domain.Entities.ProblemDataSet", b =>
+                {
                     b.HasOne("COJ.Web.Domain.Entities.Problem", null)
-                        .WithMany("Classifications")
+                        .WithMany("DataSets")
+                        .HasForeignKey("ProblemId");
+                });
+
+            modelBuilder.Entity("COJ.Web.Domain.Entities.ProblemSubmission", b =>
+                {
+                    b.HasOne("COJ.Web.Domain.Entities.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("COJ.Web.Domain.Entities.Language", "Language")
+                        .WithMany()
+                        .HasForeignKey("LanguageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("COJ.Web.Domain.Entities.Problem", "Problem")
+                        .WithMany()
+                        .HasForeignKey("ProblemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("Language");
+
+                    b.Navigation("Problem");
+                });
+
+            modelBuilder.Entity("COJ.Web.Domain.Entities.ProblemTranslation", b =>
+                {
+                    b.HasOne("COJ.Web.Domain.Entities.Locale", "Locale")
+                        .WithMany()
+                        .HasForeignKey("LocaleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("COJ.Web.Domain.Entities.Problem", null)
+                        .WithMany("Translations")
                         .HasForeignKey("ProblemId");
 
-                    b.Navigation("Achievement");
+                    b.Navigation("Locale");
                 });
 
             modelBuilder.Entity("COJ.Web.Domain.Entities.RefreshToken", b =>
@@ -701,7 +957,9 @@ namespace COJ.Web.API.Migrations
 
             modelBuilder.Entity("COJ.Web.Domain.Entities.Problem", b =>
                 {
-                    b.Navigation("Classifications");
+                    b.Navigation("DataSets");
+
+                    b.Navigation("Translations");
                 });
 #pragma warning restore 612, 618
         }
