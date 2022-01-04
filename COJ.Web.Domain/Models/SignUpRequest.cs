@@ -4,12 +4,10 @@ using COJ.Web.Domain.Values;
 
 namespace COJ.Web.Domain.Models
 {
-    public class SignUpModel
+    public class SignUpRequest
     {
         [Required]
         public string Username { get; set; }
-        [Required]
-        public string Nick { get; set; }
         [Required]
         public string Password { get; set; }
         /// <summary>

@@ -27,7 +27,7 @@ public class AuthenticationController : ControllerBase
     [SwaggerOperation("Sign up")]
     [SwaggerResponse(StatusCodes.Status200OK)]
     [SwaggerResponse(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> SignUp([FromBody] SignUpModel request)
+    public async Task<IActionResult> SignUp([FromBody] SignUpRequest request)
     {
         try
         {

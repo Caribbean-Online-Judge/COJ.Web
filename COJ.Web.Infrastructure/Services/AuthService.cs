@@ -76,7 +76,7 @@ public sealed class AuthService : IAuthService
     /// <param name="request"></param>
     /// <returns></returns>
     /// <exception cref="AccountEmailUsedException">If the provided email is used</exception>
-    public async Task<Account> SignUp(SignUpModel request)
+    public async Task<Account> SignUp(SignUpRequest request)
     {
         var isUsedAccountEmail = await _mediator.Send(new IsUsedAccountEmailQuery
         {
@@ -98,7 +98,6 @@ public sealed class AuthService : IAuthService
             LanguageId = request.LanguageId,
             LastName = request.LastName,
             LocaleId = request.LocaleId,
-            Nick = request.Nick,
             Password = passwordHashed,
             Username = request.Username,
             Sex = request.Sex,
