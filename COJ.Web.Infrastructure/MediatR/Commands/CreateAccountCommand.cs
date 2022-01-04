@@ -5,7 +5,7 @@ using MediatR;
 
 namespace COJ.Web.Infrastructure.MediatR.Commands;
 
-public class CreateAccountCommand : SignUpModel, IRequest<Account>
+public class CreateAccountCommand : SignUpRequest, IRequest<Account>
 {
 
 }

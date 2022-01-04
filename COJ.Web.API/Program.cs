@@ -12,6 +12,9 @@ using COJ.Web.Domain.Attributes;
 using COJ.Web.Domain.Entities;
 using COJ.Web.Domain.Values;
 using COJ.Web.Infrastructure.Extensions;
+using COJ.Web.Infrastructure.Resolvers;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
@@ -43,25 +46,29 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAuthorization(RegisterPolicies);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
-{
-    opt.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateLifetime = true,
-        ValidateIssuer = builder.Configuration.GetValue<bool>(JwtSettings.VALIDATE_ISSUER_KEY),
-        ValidateAudience =  builder.Configuration.GetValue<bool>(JwtSettings.VALIDATE_AUDIENCE_KEY),
-        ValidIssuers = builder.Configuration.GetValue<string[]>(JwtSettings.VALID_ISSUER_KEY),
-        ValidAudiences = builder.Configuration.GetValue<string[]>(JwtSettings.VALID_AUDIENCE_KEY),
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT_SECRET"])),
-        
-    };
-});
+        opt.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateLifetime = true,
+            ValidateIssuer = builder.Configuration.GetValue<bool>(JwtSettings.VALIDATE_ISSUER_KEY),
+            ValidateAudience = builder.Configuration.GetValue<bool>(JwtSettings.VALIDATE_AUDIENCE_KEY),
+            ValidIssuers = builder.Configuration.GetValue<string[]>(JwtSettings.VALID_ISSUER_KEY),
+            ValidAudiences = builder.Configuration.GetValue<string[]>(JwtSettings.VALID_AUDIENCE_KEY),
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT_SECRET"])),
+        };
+    });
 
 AddSwagger();
 RegisterDatabase();
 RegisterServices();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddFluentValidation(fv =>
+{
+    fv.RegisterValidatorsFromAssembly(Assembly.Load("COJ.Web.Infrastructure"));
+    ValidatorOptions.Global.PropertyNameResolver = CamelCasePropertyNameResolver.ResolvePropertyName;
+});
 
 var app = builder.Build();
 
@@ -123,7 +130,7 @@ void AddSwagger()
             {
                 Url = builder.Configuration["HOST_URL"]
             });
-        
+
         options.EnableAnnotations();
         options.SwaggerDoc("v1", new OpenApiInfo
         {

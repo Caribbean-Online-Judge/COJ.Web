@@ -90,10 +90,9 @@ public class AuthTests : IClassFixture<WebApplicationFactory>
     public async Task Post_SignUp()
     {
         //Content
-        var payload = new SignUpModel()
+        var payload = new SignUpRequest()
         {
             Email = "cl8dep@gmail.com",
-            Nick = "Paco",
             Sex = Sex.Male,
             Birthday = DateTime.UtcNow,
             Password = "COJUser123",
