@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using COJ.Web.Domain.Abstract;
 using COJ.Web.Domain.Entities;
+using COJ.Web.Domain.Values;
 using COJ.Web.Infrastructure.Environment;
 using Microsoft.IdentityModel.Tokens;
 
@@ -20,12 +21,9 @@ public sealed class TokenService : ITokenService
 
     public RefreshToken GenerateRefreshToken(string ipAddress = "")
     {
-        using var randomNumberGenerator = RandomNumberGenerator.Create();
-        var randomBytes = new byte[64];
-        randomNumberGenerator.GetBytes(randomBytes);
         return new RefreshToken
         {
-            Token = Convert.ToBase64String(randomBytes),
+            Token = GenerateNewToken(),
             Expires = DateTime.UtcNow.AddDays(1),
             Created = DateTime.UtcNow
         };
@@ -70,6 +68,42 @@ public sealed class TokenService : ITokenService
         return roles.Any(x => x == role);
     }
 
+    public string ComputeJwtToken(Account account, out int expirationTime)
+    {
+        if (account.Permissions == null)
+            throw new ArgumentNullException(nameof(account));
+
+        var roles = string.Join(",", account.Permissions.Select(x => x.Permission).ToArray());
+
+        var symmetricKey = Encoding.UTF8.GetBytes(_environment.Jwt.Secret);
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        var now = DateTime.UtcNow;
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.Name, account.Username),
+                new Claim(ClaimTypes.Email, account.Email),
+                new Claim(ClaimTypes.Role, roles),
+                new Claim(ClaimTypes.NameIdentifier, $"{account.Id}")
+            }),
+
+            Expires = now.AddMinutes(_environment.Jwt.ExpirationTime),
+
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(symmetricKey),
+                SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var stoken = tokenHandler.CreateToken(tokenDescriptor);
+        var token = tokenHandler.WriteToken(stoken);
+
+        expirationTime = _environment.Jwt.ExpirationTime;
+
+        return token;
+    }
+
     /// <summary>
     /// 
     /// </summary>
@@ -85,5 +119,23 @@ public sealed class TokenService : ITokenService
 
         var stringClaimValue = securityToken?.Claims.SingleOrDefault(claim => claim.Type == claimDefault)?.Value;
         return stringClaimValue ?? throw new InvalidOperationException();
+    }
+
+    public AccountToken GenerateAccountToken(AccountTokenType type)
+    {
+        return new AccountToken
+        {
+            Token = GenerateNewToken(),
+            ExpirationTime = DateTime.UtcNow.AddDays(1),
+            Type = type,
+        };
+    }
+    
+    private static string GenerateNewToken()
+    {
+        using var randomNumberGenerator = RandomNumberGenerator.Create();
+        var randomBytes = new byte[64];
+        randomNumberGenerator.GetBytes(randomBytes);
+        return Convert.ToBase64String(randomBytes);
     }
 }

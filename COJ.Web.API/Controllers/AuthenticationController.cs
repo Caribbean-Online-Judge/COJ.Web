@@ -88,4 +88,30 @@ public class AuthenticationController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpPost("recover-password")]
+    [AllowAnonymous]
+    [SwaggerOperation("Request a recover password token")]
+    [SwaggerResponse(StatusCodes.Status200OK)]
+    [SwaggerResponse(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RecoverPassword([FromBody] RecoverPasswordRequest request)
+    {
+        var result = await _authService.RecoverAccountPassword(request.Email);
+        if (result)
+            return Ok();
+        return BadRequest();
+    }
+    
+    [HttpPost("reset-password")]
+    [AllowAnonymous]
+    [SwaggerOperation("Reset account password")]
+    [SwaggerResponse(StatusCodes.Status200OK)]
+    [SwaggerResponse(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetAccountPasswordRequest request)
+    {
+        var result = await _authService.ResetAccountPassword(request);
+        if (result)
+            return Ok();
+        return Forbid();
+    }
 }

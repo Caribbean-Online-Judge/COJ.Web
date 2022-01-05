@@ -3,6 +3,7 @@ using COJ.Web.Domain.Entities;
 using COJ.Web.Domain.Models;
 using COJ.Web.Domain.Values;
 using COJ.Web.Domain.Exceptions;
+using COJ.Web.Domain.MediatR;
 using COJ.Web.Infrastructure.MediatR.Commands;
 using COJ.Web.Infrastructure.MediatR.Queries;
 using MediatR;
@@ -15,23 +16,29 @@ namespace COJ.Web.Infrastructure.Services;
 public sealed class AuthService : IAuthService
 {
     private readonly IMediator _mediator;
-    private readonly IHashService hashService;
-    private readonly IEmailService emailService;
+    private readonly IHashService _hashService;
+    private readonly IEmailService _emailService;
     private readonly ITokenService _tokenService;
-    private readonly IJwtService _jwtService;
 
-    public AuthService(IMediator mediator, IHashService hashService, IEmailService emailService, IJwtService jwtService, ITokenService tokenService)
+    public AuthService(IMediator mediator, IHashService hashService, IEmailService emailService,
+        ITokenService tokenService)
     {
         _mediator = mediator;
-        this.hashService = hashService;
-        this.emailService = emailService;
-        _jwtService = jwtService;
+        _hashService = hashService;
+        _emailService = emailService;
         _tokenService = tokenService;
     }
 
-    public Account RecoverAccount(string emailOrUsername)
+    public async Task<bool> RecoverAccountPassword(string email)
     {
-        throw new NotImplementedException();
+        var result = await _mediator.Send(new RecoverAccountPasswordCommand
+        {
+            Email = email
+        });
+
+        await _emailService.SendRecoverAccountPassword(email, result.Value);
+
+        return !result.HasError;
     }
 
     public Task<RefreshTokenResult?> RefreshToken(string token)
@@ -42,6 +49,17 @@ public sealed class AuthService : IAuthService
         });
 
         return result;
+    }
+
+    public async Task<bool> ResetAccountPassword(ResetAccountPasswordRequest request)
+    {
+        var result = await _mediator.Send(new ResetAccountPasswordCommand
+        {
+            Email = request.Email,
+            Token = request.Token,
+            NewPassword = _hashService.ComputeHash(request.NewPassword)
+        });
+        return !result.HasError;
     }
 
     public async Task<Result<SignInResponse>> SignIn(SignInModel request, SignInArguments arguments)
@@ -56,7 +74,8 @@ public sealed class AuthService : IAuthService
         if (accountResult.HasError)
             return new Result<SignInResponse>(accountResult.Exception);
 
-        var token = _jwtService.ComputeToken(accountResult.Value, out var expirationTime);
+        var token = _tokenService.ComputeJwtToken(accountResult.Value, out var expirationTime);
+
         var refreshToken = _tokenService.GenerateRefreshToken(arguments.IpAddress);
 
         await _mediator.Send(new AddRefreshTokenCommand()
@@ -84,7 +103,7 @@ public sealed class AuthService : IAuthService
         if (isUsedAccountEmail)
             return new Result<Account>(new AccountEmailUsedException());
 
-        var passwordHashed = hashService.ComputeHash(request.Password);
+        var passwordHashed = _hashService.ComputeHash(request.Password);
 
         var command = new CreateAccountCommand()
         {
@@ -104,7 +123,7 @@ public sealed class AuthService : IAuthService
 
         var accountToken = await CreateAccountConfirmationToken(createdAccount);
 
-        var emailResult = await emailService.SendAccountConfirmation(createdAccount.Email, accountToken.Token);
+        await _emailService.SendAccountConfirmation(createdAccount.Email, accountToken.Token);
 
         return new Result<Account>(createdAccount);
     }
@@ -122,4 +141,3 @@ public sealed class AuthService : IAuthService
         return accountToken;
     }
 }
-

@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using ILogger = Serilog.ILogger;
 
@@ -210,12 +211,20 @@ void RegisterPolicies(AuthorizationOptions options)
 
 ILogger SetUpLogger()
 {
-    return Log.Logger = new LoggerConfiguration()
+    var step1 = new LoggerConfiguration()
         .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-        .Enrich.FromLogContext()
-        .WriteTo.File(AppEnvironment.LogsFileName, flushToDiskInterval: TimeSpan.FromSeconds(1),
-            rollingInterval: RollingInterval.Hour)
-        .CreateLogger();
+        .Enrich
+        .FromLogContext();
+
+    step1.WriteTo
+        .File(AppEnvironment.LogsFileName, flushToDiskInterval: TimeSpan.FromSeconds(1),
+            rollingInterval: RollingInterval.Hour);
+
+    if (builder.Environment.IsDevelopment())
+        step1.WriteTo
+            .Console(theme: AnsiConsoleTheme.Code);
+
+    return Log.Logger = step1.CreateLogger();
 }
 
 // For compatibility with End2End Tests

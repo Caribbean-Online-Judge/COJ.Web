@@ -1,10 +1,4 @@
-﻿using System.Diagnostics;
-using COJ.Web.Domain.Abstract;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Mail;
-using System.Reflection;
-using System.Text;
+﻿using COJ.Web.Domain.Abstract;
 using COJ.Web.Domain.Values;
 using COJ.Web.Infrastructure.Environment;
 using MimeKit;
@@ -28,14 +22,16 @@ public sealed class EmailService : IEmailService
         _emailFrom = new MailboxAddress("Caribbean Online Judge", _environment.FromMailAddress);
     }
 
-
     public async Task<bool> SendAccountConfirmation(string toEmail, string token)
     {
         try
         {
-            var emailTemplate = GetTemplate(EmailTemplates.AccountConfirmation);
             var link = $"https://{_appDomain}/api/v1/account/confirm?email={toEmail}&token={token}";
-            var body = emailTemplate.Replace(PrincipalLinkPlaceholder, link);
+            var placeholders = new Dictionary<string, string>
+            {
+                {PrincipalLinkPlaceholder, link}
+            };
+            var body = GetTemplate(EmailTemplates.AccountConfirmation, placeholders);
 
             var message = BuildMessage(toEmail, "COJ account confirmation", body);
 
@@ -44,6 +40,28 @@ public sealed class EmailService : IEmailService
         catch (Exception ex)
         {
             Log.Error(ex, LogsTags.EMAIL_SERVICE_FATAL_ERROR);
+            throw;
+        }
+    }
+
+    public async Task<bool> SendRecoverAccountPassword(string toEmail, string token)
+    {
+        try
+        {
+            var link = $"https://{_appDomain}/api/v1/auth/reset-password?email={toEmail}&token={token}";
+            var placeholders = new Dictionary<string, string>
+            {
+                {PrincipalLinkPlaceholder, link}
+            };
+            var body = GetTemplate(EmailTemplates.RecoverPassword, placeholders);
+
+            var message = BuildMessage(toEmail, "COJ password recovery", body);
+
+            return await SendMessage(message);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, LogsTags.EmailServiceFatalError);
             throw;
         }
     }
@@ -63,7 +81,8 @@ public sealed class EmailService : IEmailService
         }
         catch (Exception ex)
         {
-            Log.Error(ex, LogsTags.EMAIL_SERVICE_FATAL_ERROR);
+
+            Log.Error(ex, LogsTags.EmailServiceFatalError);
             throw;
         }
     }
@@ -72,7 +91,7 @@ public sealed class EmailService : IEmailService
         var message = new MimeMessage();
         message.From.Add(_emailFrom);
         message.To.Add(MailboxAddress.Parse(to));
-        message.Subject = "COJ account confirmation";
+        message.Subject = subject;
 
         message.Body = new TextPart("html")
         {
@@ -81,12 +100,31 @@ public sealed class EmailService : IEmailService
 
         return message;
     }
-    
-    private static string GetTemplate(EmailTemplates template)
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="template"></param>
+    /// <param name="placeholders"></param>
+    /// <returns></returns>
+    /// <exception cref="FileNotFoundException"></exception>
+    private static string GetTemplate(EmailTemplates template, Dictionary<string, string> placeholders)
     {
-        var name = template + ".html";
-        var path = Path.Combine(AppEnvironment.EmailsTemplatesFolder, "en", name);
-        //TODO: implement emails localization
-        return File.ReadAllText(path);
+        try
+        {
+            var name = template + ".html";
+            var path = Path.Combine(AppEnvironment.EmailsTemplatesFolder, "en", name);
+            if (!File.Exists(path))
+                throw new FileNotFoundException(path);
+
+            //TODO: implement emails localization
+            var body = File.ReadAllText(path);
+            return placeholders.Aggregate(body, (current, placeholder) => current.Replace(placeholder.Key, placeholder.Value));
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, LogsTags.EmailServiceTemplatesError);
+            throw;
+        }
     }
 }

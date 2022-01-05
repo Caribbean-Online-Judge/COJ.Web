@@ -19,7 +19,8 @@ public interface IAuthService
     /// <exception cref="DisabledAccountException">When the account is disabled</exception>
     Task<Result<SignInResponse>> SignIn(SignInModel account, SignInArguments argument);
 
-    Account RecoverAccount(string emailOrUsername);
+    Task<bool> RecoverAccountPassword(string emailOrUsername);
     Task<RefreshTokenResult?> RefreshToken(string token);
+    Task<bool> ResetAccountPassword(ResetAccountPasswordRequest request);
 }
 

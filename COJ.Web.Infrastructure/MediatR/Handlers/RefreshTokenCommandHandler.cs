@@ -1,5 +1,4 @@
 ﻿using COJ.Web.Domain.Abstract;
-using COJ.Web.Domain.Entities;
 using COJ.Web.Domain.Models;
 using COJ.Web.Infrastructure.MediatR.Commands;
 using COJ.Web.Infrestructure.Data;
@@ -13,13 +12,11 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
 {
     private readonly MainDbContext _db;
     private readonly ITokenService _tokenService;
-    private readonly IJwtService _jwtService;
 
-    public RefreshTokenCommandHandler(MainDbContext db, ITokenService tokenService, IJwtService jwtService)
+    public RefreshTokenCommandHandler(MainDbContext db, ITokenService tokenService)
     {
         _db = db;
         _tokenService = tokenService;
-        _jwtService = jwtService;
     }
 
     public async Task<RefreshTokenResult?> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
@@ -43,7 +40,7 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        var jwtToken = _jwtService.ComputeToken(user, out var duration);
+        var jwtToken = _tokenService.ComputeJwtToken(user, out var duration);
         return new RefreshTokenResult()
         {
             Token = jwtToken,
