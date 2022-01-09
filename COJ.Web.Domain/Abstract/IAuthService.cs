@@ -7,7 +7,7 @@ namespace COJ.Web.Domain.Abstract;
 
 public interface IAuthService
 {
-    Task<Account> SignUp(SignUpRequest request);
+    Task<Result<Account>> SignUp(SignUpRequest request);
 
     /// <summary>
     /// 

@@ -74,7 +74,7 @@ public sealed class AuthService : IAuthService
     /// <param name="request"></param>
     /// <returns></returns>
     /// <exception cref="AccountEmailUsedException">If the provided email is used</exception>
-    public async Task<Account> SignUp(SignUpRequest request)
+    public async Task<Result<Account>> SignUp(SignUpRequest request)
     {
         var isUsedAccountEmail = await _mediator.Send(new IsUsedAccountEmailQuery
         {
@@ -82,7 +82,7 @@ public sealed class AuthService : IAuthService
         });
 
         if (isUsedAccountEmail)
-            throw new AccountEmailUsedException();
+            return new Result<Account>(new AccountEmailUsedException());
 
         var passwordHashed = hashService.ComputeHash(request.Password);
 
@@ -106,7 +106,7 @@ public sealed class AuthService : IAuthService
 
         var emailResult = await emailService.SendAccountConfirmation(createdAccount.Email, accountToken.Token);
 
-        return createdAccount;
+        return new Result<Account>(createdAccount);
     }
 
     private async Task<AccountToken> CreateAccountConfirmationToken(Account newAccount)

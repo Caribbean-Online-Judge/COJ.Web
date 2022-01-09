@@ -31,20 +31,22 @@ public class AuthenticationController : ControllerBase
     [SwaggerResponse(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SignUp([FromBody] SignUpRequest request)
     {
-        try
+        var result = await _authService.SignUp(request);
+        if (result.HasError)
         {
-            var result = await _authService.SignUp(request);
-
-            return Ok(result);
-        }
-        catch (AccountEmailUsedException)
-        {
-            return BadRequest(new BadRequestResponse
+            if (result.Exception is AccountEmailUsedException)
             {
-                Code = ResponseCodes.EmailInUse,
-                Message = "The provided email is used!"
-            });
+                return BadRequest(new BadRequestResponse
+                {
+                    Code = ResponseCodes.EmailInUse,
+                    Message = "The provided email is used!"
+                });
+            }
+            else
+                throw result.Exception;
         }
+
+        return Ok();
     }
 
     [HttpPost("sign-in")]
@@ -62,15 +64,12 @@ public class AuthenticationController : ControllerBase
         var result = await _authService.SignIn(request, arguments);
         if (result.HasError)
         {
-            switch (result.Exception)
+            return result.Exception switch
             {
-                case DisabledAccountException:
-                    return BadRequest();
-                case UnauthorizedAccessException:
-                    return Unauthorized();
-                default:
-                    throw result.Exception;
-            }
+                DisabledAccountException => BadRequest(),
+                UnauthorizedAccessException => Unauthorized(),
+                _ => throw result.Exception,
+            };
         }
         return Ok(result.Value);
     }
