@@ -1,5 +1,7 @@
 ﻿using COJ.Web.Domain.Entities;
+using COJ.Web.Domain.MediatR;
 using COJ.Web.Domain.Models;
+using COJ.Web.Domain.Models.Dtos;
 
 namespace COJ.Web.Domain.Abstract;
 
@@ -13,8 +15,9 @@ public interface IAuthService
     /// <param name="account"></param>
     /// <param name="argument"></param>
     /// <returns></returns>
-    /// <exception cref="NotAuhorizedException">When the credentials are wrong</exception>
-    Task<SignInResult> SignIn(SignInModel account, SignInArguments argument);
+    /// <exception cref="UnauthorizedAccessException">When the credentials are wrong</exception>
+    /// <exception cref="DisabledAccountException">When the account is disabled</exception>
+    Task<Result<SignInResponse>> SignIn(SignInModel account, SignInArguments argument);
 
     Account RecoverAccount(string emailOrUsername);
     Task<RefreshTokenResult?> RefreshToken(string token);

@@ -46,4 +46,13 @@ public class Account : BaseEntity
     public AccountSettings? Settings { get; set; }
     public AccountStatistic Statistics { get; set; }
     public List<RefreshToken> RefreshTokens { get; set; }
+    /// <summary>
+    /// Use this property to check if the account was confirmed.
+    /// <br/>
+    /// <i>
+    /// In the feature this property can indicate if the account 
+    /// was confirmed, independently to the way used to do that.
+    /// </i>
+    /// </summary>
+    public bool AccountConfirmed => EmailConfirmed;
 }
