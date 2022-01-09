@@ -6,6 +6,9 @@ using COJ.Web.Domain.Exceptions;
 using COJ.Web.Infrastructure.MediatR.Commands;
 using COJ.Web.Infrastructure.MediatR.Queries;
 using MediatR;
+using COJ.Web.Domain.Models.Dtos;
+using COJ.Web.Domain.MediatR;
+using COJ.Web.Domain;
 
 namespace COJ.Web.Infrastructure.Services;
 
@@ -41,33 +44,28 @@ public sealed class AuthService : IAuthService
         return result;
     }
 
-    public async Task<SignInResult> SignIn(SignInModel request, SignInArguments arguments)
+    public async Task<Result<SignInResponse>> SignIn(SignInModel request, SignInArguments arguments)
     {
-        var account = await _mediator.Send(new SignInAccountCommand()
+        var accountResult = await _mediator.Send(new SignInAccountCommand()
         {
             UsernameOrEmail = request.UsernameOrEmail,
             Password = request.Password,
             IpAddress = arguments.IpAddress,
         });
 
-        if (account == null)
-            throw new NotAuthorizedException();
+        if (accountResult.HasError)
+            return new Result<SignInResponse>(accountResult.Exception);
 
-        var token = _jwtService.ComputeToken(account, out var expirationTime);
+        var token = _jwtService.ComputeToken(accountResult.Value, out var expirationTime);
         var refreshToken = _tokenService.GenerateRefreshToken(arguments.IpAddress);
 
-       await _mediator.Send(new AddRefreshTokenCommand()
+        await _mediator.Send(new AddRefreshTokenCommand()
         {
             RefreshToken = refreshToken,
-            Account = account
+            Account = accountResult.Value
         });
-     
-        return new SignInResult()
-        {
-            Token = token,
-            RefreshToken = refreshToken.Token,
-            ExpirationTime = expirationTime
-        };
+
+        return new Result<SignInResponse>(new SignInResponse(token, refreshToken.Token, expirationTime));
     }
 
     /// <summary>

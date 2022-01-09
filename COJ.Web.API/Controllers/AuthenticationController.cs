@@ -1,7 +1,9 @@
 using COJ.Web.API.Values;
+using COJ.Web.Domain;
 using COJ.Web.Domain.Abstract;
 using COJ.Web.Domain.Exceptions;
 using COJ.Web.Domain.Models;
+using COJ.Web.Domain.Models.Dtos;
 using COJ.Web.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +23,7 @@ public class AuthenticationController : ControllerBase
     {
         _authService = authService;
     }
-    
+
     [HttpPost("sign-up")]
     [AllowAnonymous]
     [SwaggerOperation("Sign up")]
@@ -48,23 +50,29 @@ public class AuthenticationController : ControllerBase
     [HttpPost("sign-in")]
     [AllowAnonymous]
     [SwaggerOperation("Create a new session")]
-    [SwaggerResponse(StatusCodes.Status200OK)]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+    [SwaggerResponse(StatusCodes.Status200OK, "", typeof(SignInResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "If the account is disabled")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "If the credentials are invalid or the account is not activated.")]
     public async Task<IActionResult> SignIn([FromBody] SignInModel request)
     {
-        try
+        var arguments = new SignInArguments
         {
-            var arguments = new SignInArguments
+            IpAddress = Request.GetClientIpAddress()
+        };
+        var result = await _authService.SignIn(request, arguments);
+        if (result.HasError)
+        {
+            switch (result.Exception)
             {
-                IpAddress = Request.GetClientIpAddress()
-            };
-            var result = await _authService.SignIn(request, arguments);
-            return Ok(result);
+                case DisabledAccountException:
+                    return BadRequest();
+                case UnauthorizedAccessException:
+                    return Unauthorized();
+                default:
+                    throw result.Exception;
+            }
         }
-        catch (NotAuthorizedException)
-        {
-            return Unauthorized();
-        }
+        return Ok(result.Value);
     }
 
     [HttpPost("refresh")]
