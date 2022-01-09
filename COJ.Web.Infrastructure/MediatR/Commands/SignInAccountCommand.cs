@@ -4,9 +4,11 @@ using COJ.Web.Domain.Entities;
 using COJ.Web.Domain.MediatR;
 using COJ.Web.Domain.Models;
 using COJ.Web.Domain.Values;
+using COJ.Web.Infrastructure.Environment;
 using COJ.Web.Infrestructure.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.Net.Mail;
 
 namespace COJ.Web.Infrastructure.MediatR.Commands;
@@ -62,7 +64,8 @@ public sealed class SignInAccountCommandHandler : IRequestHandler<SignInAccountC
         }
         catch (Exception e)
         {
-            return new Result<Account>(e);
+            Log.Error(e, LogsTags.SignIn);
+            throw;
         }
     }
 }
