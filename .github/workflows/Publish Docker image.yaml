@@ -57,6 +57,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
+          port: 8022
           script: |
             cd apps/coj-backend
             docker-compose pull
