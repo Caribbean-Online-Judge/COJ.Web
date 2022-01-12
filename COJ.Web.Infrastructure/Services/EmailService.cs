@@ -44,7 +44,7 @@ public sealed class EmailService : IEmailService
         catch (Exception ex)
         {
             Log.Error(ex, LogsTags.EMAIL_SERVICE_FATAL_ERROR);
-            return await Task.FromResult(false);
+            throw;
         }
     }
 
@@ -64,7 +64,7 @@ public sealed class EmailService : IEmailService
         catch (Exception ex)
         {
             Log.Error(ex, LogsTags.EMAIL_SERVICE_FATAL_ERROR);
-            return false;
+            throw;
         }
     }
     private MimeMessage BuildMessage(string to, string subject, string body)
