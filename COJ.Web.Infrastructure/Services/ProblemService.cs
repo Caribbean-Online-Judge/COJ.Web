@@ -18,12 +18,13 @@ public sealed class ProblemService : IProblemService
         _mediator = mediator;
     }
 
-    public async Task<PaginatedResult<object>> GetPaginatedProblems(PaginationArguments arguments)
+    public async Task<PaginatedResult<object>> GetPaginatedProblems(int page, int pageSize, string searchBy, string[] orderBy)
     {
         var problemsPaginated = await _mediator.Send(new GetProblemsPaginatedQuery()
         {
-            Page = arguments.Page,
-            PageSize = arguments.PageSize
+            Page = page,
+            PageSize = pageSize,
+            SearchBy = searchBy,
         });
 
         return problemsPaginated;

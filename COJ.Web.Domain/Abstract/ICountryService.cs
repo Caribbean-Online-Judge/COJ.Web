@@ -5,5 +5,5 @@ namespace COJ.Web.Domain.Abstract;
 
 public interface ICountryService
 {
-    Task<Result<IEnumerable>> GetAll(bool isForPublic = true);
+    IQueryable GetAll(bool isForPublic = true);
 }

@@ -3,6 +3,7 @@ using COJ.Web.Domain.Abstract;
 using COJ.Web.Domain.Entities;
 using COJ.Web.Domain.Models.Dtos;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace COJ.Web.API.Controllers;
@@ -21,14 +22,12 @@ public class CountryController : Controller
     }
     
     [HttpGet]
+    [EnableQuery]
     [SwaggerOperation("Get all countries")]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PublicCountryDto))]
     [SwaggerResponse(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetAllLocales()
+    public IQueryable GetAllContries()
     {
-        var locales = await _countryService.GetAll();
-        if (locales.HasError)
-            return BadRequest();
-        return Ok(locales.Value);
+        return _countryService.GetAll();
     }
 }

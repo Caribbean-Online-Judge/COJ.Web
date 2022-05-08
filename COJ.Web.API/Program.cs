@@ -6,10 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
-using System.Security.Claims;
 using System.Text;
 using COJ.Web.Domain.Attributes;
-using COJ.Web.Domain.Entities;
 using COJ.Web.Domain.Values;
 using COJ.Web.Infrastructure.Extensions;
 using COJ.Web.Infrastructure.Resolvers;
@@ -20,8 +18,8 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using ILogger = Serilog.ILogger;
+using Microsoft.AspNetCore.OData;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,7 +39,13 @@ builder.Services.AddCors(options =>
         policy.AllowAnyOrigin();
     });
 });
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddOData(options =>
+{
+    options.Filter().OrderBy().Count().SkipToken().Expand().SetMaxTop(100);
+    options.EnableNoDollarQueryOptions = true;
+});
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddAuthorization(RegisterPolicies);

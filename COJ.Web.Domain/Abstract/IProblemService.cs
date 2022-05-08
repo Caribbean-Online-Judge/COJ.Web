@@ -7,7 +7,7 @@ namespace COJ.Web.Domain.Abstract;
 
 public interface IProblemService
 {
-    Task<PaginatedResult<object>> GetPaginatedProblems(PaginationArguments arguments);
+    Task<PaginatedResult<object>> GetPaginatedProblems(int page, int pageSize, string searchBy = "", string[]? orderBy = null);
 
     Task<Problem> CreateProblem(CreateProblemRequest request);
     Task<bool> DeleteProblemById(int id);

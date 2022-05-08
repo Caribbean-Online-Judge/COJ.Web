@@ -1,25 +1,25 @@
-using System.Collections;
 using COJ.Web.Domain.Abstract;
-using COJ.Web.Domain.MediatR;
-using COJ.Web.Infrastructure.MediatR.Queries;
-using MediatR;
+using COJ.Web.Infrestructure.Data;
 
 namespace COJ.Web.Infrastructure.Services;
 
 public class CountryService : ICountryService
 {
-    private readonly IMediator _mediator;
 
-    public CountryService(IMediator mediator)
+    public CountryService(MainDbContext db)
     {
-        _mediator = mediator;
+        Db = db;
     }
-    public async Task<Result<IEnumerable>> GetAll(bool isForPublic = true)
+
+    public MainDbContext Db { get; }
+
+    public IQueryable GetAll(bool isForPublic = true)
     {
-        var result = await _mediator.Send(new GetAllCountriesQuery()
+        return isForPublic ? Db.Countries.Select(x => new
         {
-            IsForPublic = isForPublic
-        });
-        return result;
+            x.Id,
+            x.Name,
+            x.ISOCode
+        }) : Db.Countries;
     }
 }

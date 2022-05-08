@@ -1,4 +1,5 @@
 ﻿using System.Net.Mime;
+using COJ.Web.API.Models.QueryParams;
 using COJ.Web.Domain.Abstract;
 using COJ.Web.Domain.Entities;
 using COJ.Web.Domain.Exceptions;
@@ -30,9 +31,9 @@ public class ProblemController : Controller
     /// <returns></returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> AllProblems([FromQuery] PaginationArguments arguments)
+    public async Task<IActionResult> AllProblems([FromQuery] GetAllProblemsQueryParameters arguments)
     {
-        var problems = await _problemService.GetPaginatedProblems(arguments);
+        var problems = await _problemService.GetPaginatedProblems(arguments.Page, arguments.PageSize, arguments.SearchBy, arguments.OrderBy);
         return Ok(problems);
     }
 

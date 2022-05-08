@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="HostedServices\" />
     <Folder Include="Persistance\Seed\" />
   </ItemGroup>
 
