@@ -72,7 +72,7 @@ public sealed class EmailService : IEmailService
         {
             using var client = new SmtpClient();
             if (_environment.SmtpSsl)
-                await client.ConnectAsync(_environment.SmtpHost, _environment.SmtpPort, _environment.SmtpSsl);
+                await client.ConnectAsync(_environment.SmtpHost, _environment.SmtpPort, SecureSocketOptions.StartTls);
             else
                 await client.ConnectAsync(_environment.SmtpHost, _environment.SmtpPort);
 
