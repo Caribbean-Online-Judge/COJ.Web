@@ -1,6 +1,7 @@
 ﻿using COJ.Web.Domain.Abstract;
 using COJ.Web.Domain.Values;
 using COJ.Web.Infrastructure.Environment;
+using MailKit.Security;
 using MimeKit;
 using Serilog;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
